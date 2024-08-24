@@ -6,7 +6,7 @@ NixOS and Home-Manager presets for opt-in persistent setups.
 
 #### Credits:
 
-These are the projects inspired me.
+These are the projects that inspired me:
 
 [nix-community/impermanence#108](https://github.com/nix-community/impermanence/pull/108)
 
