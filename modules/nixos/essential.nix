@@ -49,7 +49,7 @@ in {
           mode = "0777";
         }
       ];
-      files = [ "/etc/machine-id" ];
+      files = [ "/etc/machine-id" "/etc/adjtime" ];
     };
   };
 }

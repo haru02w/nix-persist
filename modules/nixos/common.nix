@@ -34,8 +34,8 @@ in {
 
     docker.enable = PersistOption "docker" config.virtualisation.docker.enable;
 
-    libvirt.enable =
-      PersistOption "libvirt" config.virtualisation.libvirtd.enable;
+    libvirtd.enable =
+      PersistOption "libvirtd" config.virtualisation.libvirtd.enable;
     openssh.enable = PersistOption "openssh" config.services.openssh.enable;
 
     tailscale.enable = PersistOption "tailscale" config.services.tailscale.enable;
@@ -79,7 +79,7 @@ in {
         user = "root";
         group = "root";
         mode = "0710";
-      }] ++ lib.optionals cfg.libvirt.enable [{
+      }] ++ lib.optionals cfg.libvirtd.enable [{
         directory = "/var/lib/libvirt";
         user = "root";
         group = "root";
