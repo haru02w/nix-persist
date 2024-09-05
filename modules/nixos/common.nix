@@ -37,6 +37,8 @@ in {
     libvirt.enable =
       PersistOption "libvirt" config.virtualisation.libvirtd.enable;
     openssh.enable = PersistOption "openssh" config.services.openssh.enable;
+
+    tailscale.enable = PersistOption "tailscale" config.services.tailscale.enable;
   };
 
   config = mkIf cfg.enable {
@@ -80,6 +82,11 @@ in {
         user = "root";
         group = "root";
         mode = "0755";
+      }] ++ lib.optionals cfg.tailscale.enable [{
+        directory = "/var/lib/tailscale";
+        user = "root";
+        group = "root";
+        mode = "0700";
       }];
       files = [ ] ++ lib.optionals cfg.openssh.enable [
         # keep ssh fingerprints stable
