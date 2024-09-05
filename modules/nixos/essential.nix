@@ -51,6 +51,18 @@ in {
           group = "root";
           mode = "0777";
         }
+        {
+          directory = "/etc/passwd";
+          user = "root";
+          group = "root";
+          mode = "0644";
+        }
+        {
+          directory = "/etc/shadow";
+          user = "root";
+          group = "shadow";
+          mode = "0640";
+        }
       ];
       files = ["/etc/machine-id" "/etc/adjtime"];
     };
