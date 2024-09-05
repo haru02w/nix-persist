@@ -1,6 +1,9 @@
-{ lib, config, ... }:
-with lib;
-let
+{
+  lib,
+  config,
+  ...
+}:
+with lib; let
   cfg = config.environment.nix-persist.common;
   inherit (config.environment.nix-persist) path;
   PersistOption = name: default:
@@ -14,8 +17,7 @@ in {
     enable = mkOption {
       type = types.bool;
       default = true;
-      description =
-        "common services and programs files into persistent storage";
+      description = "common services and programs files into persistent storage";
     };
 
     networkmanager.enable =
@@ -45,63 +47,91 @@ in {
 
   config = mkIf cfg.enable {
     environment.persistence.${path} = {
-      directories = [ ] ++ lib.optionals cfg.networkmanager.enable [
-        {
-          directory = "/etc/NetworkManager/system-connections";
-          mode = "0700";
-        }
-        {
-          directory = "/var/lib/NetworkManager";
-          mode = "0755";
-        }
-      ] ++ lib.optionals cfg.bluetooth.enable [{
-        directory = "/var/lib/bluetooth";
-        user = "root";
-        group = "root";
-        mode = "0755";
-      }] ++ lib.optionals cfg.iwd.enable [{
-        directory = "/var/lib/iwd";
-        user = "root";
-        group = "root";
-        mode = "0700";
-      }] ++ lib.optionals cfg.dhcpcd.enable [{
-        directory = "/var/db/dhcpcd";
-        user = "root";
-        group = "root";
-        mode = "0755";
-      }] ++ lib.optionals cfg.sudo.enable [{
-        directory = "/var/db/sudo/lectured";
-        user = "root";
-        group = "root";
-        mode = "0700";
-      }] ++ lib.optionals cfg.docker.enable [{
-        directory = "/var/lib/docker";
-        user = "root";
-        group = "root";
-        mode = "0710";
-      }] ++ lib.optionals cfg.libvirtd.enable [{
-        directory = "/var/lib/libvirt";
-        user = "root";
-        group = "root";
-        mode = "0755";
-      }] ++ lib.optionals cfg.tailscale.enable [{
-        directory = "/var/lib/tailscale";
-        user = "root";
-        group = "root";
-        mode = "0700";
-      }] ++ lib.optionals cfg.asusd.enable [{
-        directory = "/etc/asusd";
-        user = "root";
-        group = "root";
-        mode = "0755";
-      }];
-      files = [ ] ++ lib.optionals cfg.openssh.enable [
-        # keep ssh fingerprints stable
-        "/etc/ssh/ssh_host_ed25519_key"
-        "/etc/ssh/ssh_host_ed25519_key.pub"
-        "/etc/ssh/ssh_host_rsa_key"
-        "/etc/ssh/ssh_host_rsa_key.pub"
-      ];
+      directories =
+        []
+        ++ lib.optionals cfg.networkmanager.enable [
+          {
+            directory = "/etc/NetworkManager/system-connections";
+            mode = "0700";
+          }
+          {
+            directory = "/var/lib/NetworkManager";
+            mode = "0755";
+          }
+        ]
+        ++ lib.optionals cfg.bluetooth.enable [
+          {
+            directory = "/var/lib/bluetooth";
+            user = "root";
+            group = "root";
+            mode = "0755";
+          }
+        ]
+        ++ lib.optionals cfg.iwd.enable [
+          {
+            directory = "/var/lib/iwd";
+            user = "root";
+            group = "root";
+            mode = "0700";
+          }
+        ]
+        ++ lib.optionals cfg.dhcpcd.enable [
+          {
+            directory = "/var/db/dhcpcd";
+            user = "root";
+            group = "root";
+            mode = "0755";
+          }
+        ]
+        ++ lib.optionals cfg.sudo.enable [
+          {
+            directory = "/var/db/sudo/lectured";
+            user = "root";
+            group = "root";
+            mode = "0700";
+          }
+        ]
+        ++ lib.optionals cfg.docker.enable [
+          {
+            directory = "/var/lib/docker";
+            user = "root";
+            group = "root";
+            mode = "0710";
+          }
+        ]
+        ++ lib.optionals cfg.libvirtd.enable [
+          {
+            directory = "/var/lib/libvirt";
+            user = "root";
+            group = "root";
+            mode = "0755";
+          }
+        ]
+        ++ lib.optionals cfg.tailscale.enable [
+          {
+            directory = "/var/lib/tailscale";
+            user = "root";
+            group = "root";
+            mode = "0700";
+          }
+        ]
+        ++ lib.optionals cfg.asusd.enable [
+          {
+            directory = "/etc/asusd";
+            user = "root";
+            group = "root";
+            mode = "0755";
+          }
+        ];
+      files =
+        []
+        ++ lib.optionals cfg.openssh.enable [
+          # keep ssh fingerprints stable
+          "/etc/ssh/ssh_host_ed25519_key"
+          "/etc/ssh/ssh_host_ed25519_key.pub"
+          "/etc/ssh/ssh_host_rsa_key"
+          "/etc/ssh/ssh_host_rsa_key.pub"
+        ];
     };
   };
 }

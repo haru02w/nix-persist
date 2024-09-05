@@ -1,6 +1,9 @@
-{ lib, config, ... }:
-with lib;
-let
+{
+  lib,
+  config,
+  ...
+}:
+with lib; let
   cfg = config.environment.nix-persist.essential;
   inherit (config.environment.nix-persist) path;
 in {
@@ -11,7 +14,7 @@ in {
   };
 
   config = mkIf cfg.enable {
-    systemd.tmpfiles.rules = [ "d /var/lib/systemd/pstore 0755 root root 14d" ];
+    systemd.tmpfiles.rules = ["d /var/lib/systemd/pstore 0755 root root 14d"];
     environment.persistence.${path} = {
       # Clean kernel debug messages
       directories = [
@@ -49,7 +52,7 @@ in {
           mode = "0777";
         }
       ];
-      files = [ "/etc/machine-id" "/etc/adjtime" ];
+      files = ["/etc/machine-id" "/etc/adjtime"];
     };
   };
 }
