@@ -39,6 +39,8 @@ in {
     openssh.enable = PersistOption "openssh" config.services.openssh.enable;
 
     tailscale.enable = PersistOption "tailscale" config.services.tailscale.enable;
+
+    asusd.enable = PersistOption "asusd" config.services.asusd.enable;
   };
 
   config = mkIf cfg.enable {
@@ -87,6 +89,11 @@ in {
         user = "root";
         group = "root";
         mode = "0700";
+      }] ++ lib.optionals cfg.asusd.enable [{
+        directory = "/etc/asusd";
+        user = "root";
+        group = "root";
+        mode = "0755";
       }];
       files = [ ] ++ lib.optionals cfg.openssh.enable [
         # keep ssh fingerprints stable
