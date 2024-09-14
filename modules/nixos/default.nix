@@ -32,7 +32,7 @@ in {
         };
         persistTmp = mkOption {
           type = types.bool;
-          default = true;
+          default = false;
           description = "Persist /tmp (and clean on boot)";
         };
       };
