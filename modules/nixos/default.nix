@@ -45,9 +45,8 @@ in {
       chown ${user.name}:${user.group} ${cfg.path}/${user.home}
       chmod ${user.homeMode} ${cfg.path}/${user.home}
     '';
-    users =
-      mkAfter [ config.users.users ] builtins.filter (user: user.createHome)
-      (lib.attrValues config.users.users);
+    users = mkAfter (builtins.filter (user: user.createHome)
+      (lib.attrValues config.users.users));
   in {
     # wipe /tmp at boot
     boot.tmp.cleanOnBoot = lib.mkIf cfg.persistTmp true;
