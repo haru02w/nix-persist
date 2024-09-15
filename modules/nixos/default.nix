@@ -25,12 +25,18 @@ in {
           default = [ ];
           description = "Extra files to persist";
         };
-        persistHome = mkOption {
+        persistHome.enable = mkOption {
           type = types.bool;
           default = false;
           description = "Persist /home/$USER directory";
         };
-        persistTmp = mkOption {
+        persistHome.users = mkOption {
+          type = with types; listOf attrs;
+          default = lib.optionals cfg.persistHome.enable
+            (throw "Set users' home to persist");
+          description = "users to persist home";
+        };
+        persistTmp.enable = mkOption {
           type = types.bool;
           default = false;
           description = "Persist /tmp (and clean on boot)";
@@ -46,19 +52,19 @@ in {
       chmod ${user.homeMode} ${cfg.path}/${user.home}
     '';
     users = builtins.filter (user: user.createHome)
-      (lib.attrValues config.users.users);
+      (lib.attrValues cfg.persistHome.users);
   in {
     # wipe /tmp at boot
-    boot.tmp.cleanOnBoot = lib.mkIf cfg.persistTmp true;
+    boot.tmp.cleanOnBoot = lib.mkIf cfg.persistTmp.enable true;
 
     environment.persistence.${cfg.path} = {
       hideMounts = true;
-      directories = cfg.directories ++ (lib.optionals cfg.persistTmp [{
+      directories = cfg.directories ++ (lib.optionals cfg.persistTmp.enable [{
         directory = "/tmp";
         user = "root";
         group = "root";
         mode = "1777";
-      }]) ++ (lib.optionals cfg.persistHome (map (user: {
+      }]) ++ (lib.optionals cfg.persistHome.enable (map (user: {
         directory = "${user.home}";
         user = user.name;
         group = user.group;
@@ -68,7 +74,7 @@ in {
     };
     programs.fuse.userAllowOther = true;
 
-    system.activationScripts = lib.optionalAttrs cfg.persistHome {
+    system.activationScripts = lib.optionalAttrs cfg.persistHome.enable {
       persistent-dirs.text = lib.concatLines (map mkHomePersist users);
     };
   });
