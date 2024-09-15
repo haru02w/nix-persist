@@ -58,13 +58,9 @@ in {
         user = "root";
         group = "root";
         mode = "1777";
-      }]) ;
-      # ++ (lib.optionals cfg.persistHome (map (user: {
-      #   directory = "dfsfds";
-      #   user = "fdsfs";
-      #   group = "fdsfs";
-      #   mode = "fdsfsd";
-      # }) users));
+      }]) ++ (lib.optionals cfg.persistHome (map (user: "${user.home}")
+        (builtins.filter (user: user.createHome)
+          (lib.attrValues config.users.users))));
       files = cfg.files;
     };
     programs.fuse.userAllowOther = true;
