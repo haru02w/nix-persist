@@ -1,5 +1,5 @@
 {
-  lib,
+ lib,
   config,
   ...
 }:
@@ -45,13 +45,12 @@ in {
 
   config = let
     mkHomePersist = user: ''
-      mkdir -p /persist/${user.home}
+      mkdir -p ${cfg.path}/${user.home}
       chown ${user.name}:${user.group} ${cfg.path}/${user.home}
       chmod ${user.homeMode} ${cfg.path}/${user.home}
     '';
     users =
-      builtins.filter (user: user.createHome)
-      (lib.attrValues config.users.users);
+      builtins.filter (user: user.createHome) (lib.attrValues config.users.users);
   in
     mkIf cfg.enable {
       # wipe /tmp at boot
@@ -74,8 +73,8 @@ in {
       };
       programs.fuse.userAllowOther = true;
 
-      system.activationScripts = lib.optionalAttrs cfg.persistHome {
-        persistent-dirs.text = lib.concatLines (map mkHomePersist users);
-      };
+      # system.activationScripts = lib.optionalAttrs cfg.persistHome {
+      #   persistent-dirs.text = lib.concatLines (map mkHomePersist users);
+      # };
     };
 }
