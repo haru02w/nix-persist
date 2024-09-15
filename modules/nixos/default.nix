@@ -25,11 +25,6 @@ in {
           default = [ ];
           description = "Extra files to persist";
         };
-        persistHome = mkOption {
-          type = types.bool;
-          default = false;
-          description = "Persist /home/$USER directory";
-        };
         persistTmp = mkOption {
           type = types.bool;
           default = false;
@@ -39,21 +34,7 @@ in {
     };
   };
 
-  config = mkIf cfg.enable (let
-    mkHomePersist = user: ''
-      mkdir -p ${cfg.path}/${user.home}
-      chown ${user.name}:${user.group} ${cfg.path}/${user.home}
-      chmod ${user.homeMode} ${cfg.path}/${user.home}
-    '';
-    users = builtins.filter (user: user.createHome)
-      (lib.attrValues config.users.users);
-    homeAttrs = user: {
-      directory = "${user.home}";
-      user = user.name;
-      group = user.group;
-      mode = user.homeMode;
-    };
-  in {
+  config = mkIf cfg.enable {
     # wipe /tmp at boot
     boot.tmp.cleanOnBoot = lib.mkIf cfg.persistTmp true;
 
@@ -64,13 +45,10 @@ in {
         user = "root";
         group = "root";
         mode = "1777";
-      }]) ++ (lib.optionals cfg.persistHome (map homeAttrs users));
+      }]);
       files = cfg.files;
     };
     programs.fuse.userAllowOther = true;
 
-    system.activationScripts = lib.optionalAttrs cfg.persistHome {
-      persistent-dirs.text = lib.concatLines (map mkHomePersist users);
-    };
-  });
+  };
 }
