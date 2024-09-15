@@ -64,7 +64,7 @@ in {
         user = "root";
         group = "root";
         mode = "1777";
-      }]) ++ mkAfter (lib.optionals cfg.persistHome (map homeAttrs users));
+      }]) ++ (lib.optionals cfg.persistHome (map homeAttrs users));
       files = cfg.files;
     };
     programs.fuse.userAllowOther = true;
