@@ -45,7 +45,8 @@ in {
       chown ${user.name}:${user.group} ${cfg.path}/${user.home}
       chmod ${user.homeMode} ${cfg.path}/${user.home}
     '';
-    users = builtins.filter (user: user.createHome)
+    users =
+      mkAfter [ config.users.users ] builtins.filter (user: user.createHome)
       (lib.attrValues config.users.users);
   in {
     # wipe /tmp at boot
@@ -58,9 +59,7 @@ in {
         user = "root";
         group = "root";
         mode = "1777";
-      }]) ++ (lib.optionals cfg.persistHome (map (user: "${user.home}")
-        (builtins.filter (user: user.createHome)
-          (lib.attrValues config.users.users))));
+      }]) ++ (lib.optionals cfg.persistHome (map (user: "${user.home}") users));
       files = cfg.files;
     };
     programs.fuse.userAllowOther = true;
