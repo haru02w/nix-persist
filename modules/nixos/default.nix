@@ -64,18 +64,19 @@ in {
         user = "root";
         group = "root";
         mode = "1777";
-      }]) ++ (lib.optionals cfg.persistHome.enable (map (user: {
-        directory = "${user.home}";
-        user = user.name;
-        group = user.group;
-        mode = user.homeMode;
-      }) users));
+      }]) ;
+      # ++ (lib.optionals cfg.persistHome.enable (map (user: {
+      #   directory = "${user.home}";
+      #   user = user.name;
+      #   group = user.group;
+      #   mode = user.homeMode;
+      # }) users));
       files = cfg.files;
     };
     programs.fuse.userAllowOther = true;
 
-    system.activationScripts = lib.optionalAttrs cfg.persistHome.enable {
-      persistent-dirs.text = lib.concatLines (map mkHomePersist users);
-    };
+    # system.activationScripts = lib.optionalAttrs cfg.persistHome.enable {
+    #   persistent-dirs.text = lib.concatLines (map mkHomePersist users);
+    # };
   });
 }
