@@ -45,13 +45,13 @@ in {
       chown ${user.name}:${user.group} ${cfg.path}/${user.home}
       chmod ${user.homeMode} ${cfg.path}/${user.home}
     '';
-    users = mkAfter (builtins.filter (user: user.createHome)
+    users = (builtins.filter (user: user.createHome)
       (lib.attrValues config.users.users));
   in {
     # wipe /tmp at boot
     boot.tmp.cleanOnBoot = lib.mkIf cfg.persistTmp true;
 
-    environment.persistence.${cfg.path} = {
+    environment.persistence.${cfg.path} = mkAfter {
       hideMounts = true;
       directories = cfg.directories ++ (lib.optionals cfg.persistTmp [{
         directory = "/tmp";
