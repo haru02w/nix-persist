@@ -25,18 +25,12 @@ in {
           default = [ ];
           description = "Extra files to persist";
         };
-        persistHome.enable = mkOption {
+        persistHome = mkOption {
           type = types.bool;
           default = false;
           description = "Persist /home/$USER directory";
         };
-        persistHome.users = mkOption {
-          type = with types; listOf attrs;
-          default = lib.optionals cfg.persistHome.enable
-            (throw "Set users' home to persist");
-          description = "users to persist home";
-        };
-        persistTmp.enable = mkOption {
+        persistTmp = mkOption {
           type = types.bool;
           default = false;
           description = "Persist /tmp (and clean on boot)";
@@ -51,32 +45,30 @@ in {
       chown ${user.name}:${user.group} ${cfg.path}/${user.home}
       chmod ${user.homeMode} ${cfg.path}/${user.home}
     '';
-    users = builtins.filter (user: user.createHome)
-      (lib.attrValues cfg.persistHome.users);
+    users = filterAttrs (_: user: user.isNormalUser) config.users.users;
   in {
     # wipe /tmp at boot
-    boot.tmp.cleanOnBoot = lib.mkIf cfg.persistTmp.enable true;
+    boot.tmp.cleanOnBoot = lib.mkIf cfg.persistTmp true;
 
     environment.persistence.${cfg.path} = {
       hideMounts = true;
-      directories = cfg.directories ++ (lib.optionals cfg.persistTmp.enable [{
+      directories = cfg.directories ++ (lib.optionals cfg.persistTmp [{
         directory = "/tmp";
         user = "root";
         group = "root";
         mode = "1777";
-      }]) ;
-      # ++ (lib.optionals cfg.persistHome.enable (map (user: {
-      #   directory = "${user.home}";
-      #   user = user.name;
-      #   group = user.group;
-      #   mode = user.homeMode;
-      # }) users));
+      }]) ++ (lib.optionals cfg.persistHome (map (user: {
+        directory = "${user.home}";
+        user = user.name;
+        group = user.group;
+        mode = user.homeMode;
+      }) users));
       files = cfg.files;
     };
     programs.fuse.userAllowOther = true;
 
-    # system.activationScripts = lib.optionalAttrs cfg.persistHome.enable {
-    #   persistent-dirs.text = lib.concatLines (map mkHomePersist users);
-    # };
+    system.activationScripts = lib.optionalAttrs cfg.persistHome {
+      persistent-dirs.text = lib.concatLines (map mkHomePersist users);
+    };
   });
 }
