@@ -53,18 +53,17 @@ in {
 
     environment.persistence.${cfg.path} = {
       hideMounts = true;
-      directories = cfg.directories ++ lib.optionals cfg.persistTmp [{
+      directories = cfg.directories ++ (lib.optionals cfg.persistTmp [{
         directory = "/tmp";
         user = "root";
         group = "root";
         mode = "1777";
-      }];
-      # ++ lib.optionals cfg.persistHome (map (user: {
-      #   directory = "${user.home}";
-      #   user = user.name;
-      #   group = user.group;
-      #   mode = user.homeMode;
-      # }) users);
+      }]) ++ (lib.optionals cfg.persistHome (map (user: {
+        directory = "dfsfds";
+        user = "fdsfs";
+        group = "fdsfs";
+        mode = "fdsfsd";
+      }) users));
       files = cfg.files;
     };
     programs.fuse.userAllowOther = true;
