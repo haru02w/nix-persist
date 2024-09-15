@@ -45,7 +45,14 @@ in {
       chown ${user.name}:${user.group} ${cfg.path}/${user.home}
       chmod ${user.homeMode} ${cfg.path}/${user.home}
     '';
-    users = filterAttrs (_: user: user.isNormalUser) config.users.users;
+    users = builtins.filter (user: user.createHome)
+      (lib.attrValues config.users.users);
+    homeAttrs = user: {
+      directory = "${user.home}";
+      user = user.name;
+      group = user.group;
+      mode = user.homeMode;
+    };
   in {
     # wipe /tmp at boot
     boot.tmp.cleanOnBoot = lib.mkIf cfg.persistTmp true;
@@ -57,12 +64,7 @@ in {
         user = "root";
         group = "root";
         mode = "1777";
-      }]) ++ (lib.optionals cfg.persistHome (map (user: {
-        directory = "${user.home}";
-        user = user.name;
-        group = user.group;
-        mode = user.homeMode;
-      }) users));
+      }]) ++ mkAfter (lib.optionals cfg.persistHome (map homeAttrs users));
       files = cfg.files;
     };
     programs.fuse.userAllowOther = true;
