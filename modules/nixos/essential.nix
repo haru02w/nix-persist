@@ -52,7 +52,7 @@ in {
           mode = "0777";
         }
       ];
-      files = ["/etc/passwd" "/etc/shadow" "/etc/machine-id" "/etc/adjtime"];
+      files = ["/etc/machine-id" "/etc/adjtime"];
     };
   };
 }
