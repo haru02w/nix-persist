@@ -1,9 +1,6 @@
 { lib, config, ... }:
 with lib;
-let
-  cfg = config.environment.nix-persist;
-  users =
-    builtins.filter (user: user.createHome) (lib.attrValues config.users.users);
+let cfg = config.environment.nix-persist;
 in {
   imports = [ ./common.nix ./essential.nix ];
   options.environment.nix-persist = mkOption {
@@ -48,6 +45,8 @@ in {
       chown ${user.name}:${user.group} ${cfg.path}/${user.home}
       chmod ${user.homeMode} ${cfg.path}/${user.home}
     '';
+    users = builtins.filter (user: user.createHome)
+      (lib.attrValues config.users.users);
   in {
     # wipe /tmp at boot
     boot.tmp.cleanOnBoot = lib.mkIf cfg.persistTmp true;
@@ -59,7 +58,7 @@ in {
         user = "root";
         group = "root";
         mode = "1777";
-      }] ++ lib.optionals cfg.persistHome (map (user: {
+      }] ++ (map (user: {
         directory = "${user.home}";
         user = user.name;
         group = user.group;
