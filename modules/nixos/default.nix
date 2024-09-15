@@ -73,8 +73,8 @@ in {
       };
       programs.fuse.userAllowOther = true;
 
-      # system.activationScripts = lib.optionalAttrs cfg.persistHome {
-      #   persistent-dirs.text = lib.concatLines (map mkHomePersist users);
-      # };
+      system.activationScripts = lib.optionalAttrs cfg.persistHome {
+        persistent-dirs.text = lib.concatLines (map mkHomePersist users);
+      };
     };
 }
