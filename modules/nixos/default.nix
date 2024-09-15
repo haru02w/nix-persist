@@ -39,7 +39,7 @@ in {
     };
   };
 
-  config = let
+  config = mkIf cfg.enable (let
     mkHomePersist = user: ''
       mkdir -p ${cfg.path}/${user.home}
       chown ${user.name}:${user.group} ${cfg.path}/${user.home}
@@ -47,7 +47,7 @@ in {
     '';
     users = builtins.filter (user: user.createHome)
       (lib.attrValues config.users.users);
-  in mkIf cfg.enable {
+  in {
     # wipe /tmp at boot
     boot.tmp.cleanOnBoot = lib.mkIf cfg.persistTmp true;
 
@@ -59,7 +59,7 @@ in {
         group = "root";
         mode = "1777";
       }] ++ lib.optionals cfg.persistHome (map (user: {
-        directory = user.home;
+        directory = "${user.home}";
         user = user.name;
         group = user.group;
         mode = user.homeMode;
@@ -71,5 +71,5 @@ in {
     system.activationScripts = lib.optionalAttrs cfg.persistHome {
       persistent-dirs.text = lib.concatLines (map mkHomePersist users);
     };
-  };
+  });
 }
