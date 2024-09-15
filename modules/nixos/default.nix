@@ -67,8 +67,8 @@ in {
               group = "root";
               mode = "1777";
             }
-          ]
-          ++ lib.optionals cfg.persistHome (map (user: "${user.home}") users);
+          ];
+          #++ lib.optionals cfg.persistHome (map (user: "${user.home}") users);
         files = cfg.files;
       };
       programs.fuse.userAllowOther = true;
