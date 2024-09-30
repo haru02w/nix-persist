@@ -44,6 +44,8 @@ in {
     asusd.enable = PersistOption "asusd" config.services.asusd.enable;
 
     ly.enable = PersistOption "ly" config.services.displayManager.ly.enable;
+
+    ollama.enable = PersistOption "ollama" config.services.ollama.enable;
   };
 
   config = mkIf cfg.enable {
@@ -96,6 +98,11 @@ in {
         directory = "/etc/asusd";
         user = "root";
         group = "root";
+        mode = "0755";
+      }] ++ lib.optionals cfg.ollama.enable [{
+        directory = "/var/lib/ollama";
+        user = "ollama";
+        group = "ollama";
         mode = "0755";
       }];
       files = [ ] ++ lib.optionals cfg.ly.enable [ "/etc/ly/save.ini" ]
