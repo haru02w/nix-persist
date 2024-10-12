@@ -1,28 +1,32 @@
-{ lib, config, ... }:
-with lib;
-let cfg = config.environment.nix-persist;
+{
+  lib,
+  config,
+  ...
+}:
+with lib; let
+  cfg = config.environment.nix-persist;
 in {
-  imports = [ ./common.nix ./essential.nix ];
+  imports = [./common.nix ./essential.nix];
   options.environment.nix-persist = mkOption {
     description = "nix-persist settings";
-    default = { };
+    default = {};
     type = types.submodule {
       options = {
         enable = mkEnableOption "nix-persist";
         path = mkOption {
           description = "Default path for persistence";
-          default = throw "You must set path to persistent storage";
+          default = null;
           example = "/persist/nixos";
-          type = types.str;
+          type = with types; nullOr str;
         };
         directories = mkOption {
           type = with types; listOf (either str attrs);
-          default = [ ];
+          default = [];
           description = "Extra directories to persist";
         };
         files = mkOption {
           type = with types; listOf (either str attrs);
-          default = [ ];
+          default = [];
           description = "Extra files to persist";
         };
         persistTmp = mkOption {
@@ -35,20 +39,29 @@ in {
   };
 
   config = mkIf cfg.enable {
+    assertions = [
+      {
+        assertion = cfg.path != null;
+        message = "You must set path to persistent storage";
+      }
+    ];
     # wipe /tmp at boot
     boot.tmp.cleanOnBoot = lib.mkIf cfg.persistTmp true;
 
     environment.persistence.${cfg.path} = {
       hideMounts = true;
-      directories = cfg.directories ++ (lib.optionals cfg.persistTmp [{
-        directory = "/tmp";
-        user = "root";
-        group = "root";
-        mode = "1777";
-      }]);
+      directories =
+        cfg.directories
+        ++ (lib.optionals cfg.persistTmp [
+          {
+            directory = "/tmp";
+            user = "root";
+            group = "root";
+            mode = "1777";
+          }
+        ]);
       files = cfg.files;
     };
     programs.fuse.userAllowOther = true;
-
   };
 }
